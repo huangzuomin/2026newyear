@@ -105,7 +105,7 @@ export default function CreateCardClient() {
 
         const timer = setTimeout(fetchVariants, 1000);
         return () => clearTimeout(timer);
-    }, [params.topic_id, params.role_id, params.learned, params.try, params.tone, tplId]);
+    }, [params.topic_id, params.role_id, params.learned, params.try, tplId]);
 
     const handleParamChange = (key: string, value: string) => {
         const validation = validateInput(value);

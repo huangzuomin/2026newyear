@@ -22,7 +22,7 @@ const CandidateGrid: React.FC<Props> = ({ tpl, params, variants, isGenerating, o
                 {isGenerating && (
                     <span className="text-[10px] text-brand-500 animate-pulse font-bold flex items-center">
                         <span className="w-1 h-1 bg-brand-500 rounded-full mr-1 animate-bounce" />
-                        AI 正在构思变体...
+                        AI 文案生成中...
                     </span>
                 )}
             </div>
