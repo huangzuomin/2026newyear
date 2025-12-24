@@ -136,5 +136,5 @@ export function getT01BackgroundImage(tone: string, style: string): string {
     const mappedTone = toneMap[tone?.toLowerCase()] || 'Clear';
     const mappedStyle = styleMap[style?.toLowerCase()] || 'Modern';
 
-    return `/templates/T01/${mappedStyle} + ${mappedTone}.png`;
+    return `/templates/T01/${mappedStyle}_${mappedTone}.png`;
 }
