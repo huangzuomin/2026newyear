@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn, fitTextStyle, truncateText } from '@/lib/utils';
 import { STYLE_MAP, StyleElements } from '@/config/elements';
-import { TEMPLATES, getT01BackgroundImage } from '@/config/templates';
+import { TEMPLATES, getT01BackgroundImage, getT02BackgroundImage, getT03BackgroundImage, getT04BackgroundImage } from '@/config/templates';
 import QRCodeBlock from './QRCodeBlock';
 import topics from '@/config/topics.json';
 import roles from '@/config/roles.json';
@@ -16,7 +16,7 @@ interface CardRendererProps {
     isThumbnail?: boolean;
 }
 
-const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride, isExporting, isThumbnail }) => {
+export const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride, isExporting, isThumbnail }) => {
     const baseStyle = STYLE_MAP[params.style] || STYLE_MAP[params.tone] || STYLE_MAP['clear'];
     const style = styleOverride || baseStyle;
 
@@ -25,6 +25,10 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
     const padding = isThumbnail ? 16 : (28 * scale);
 
     const getPrimaryColor = () => {
+        if (tpl === 'T01' || tpl === 'T02' || tpl === 'T03' || tpl === 'T04') {
+            // 这类带图模板强制文字为白色或根据逻辑反差，这里暂时以配置或白色为主
+            return '#FFFFFF';
+        }
         const hexMatch = style.textPrimary.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/);
         return hexMatch ? hexMatch[0] : '#000000';
     };
@@ -35,6 +39,21 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
     };
 
     const primaryColor = getPrimaryColor();
+    const secondaryColor = getSecondaryColor();
+
+    // 确定是否具有背景图片
+    const currentTemplate = TEMPLATES.find(t => t.id === tpl);
+    const hasBackgroundImage = tpl === 'T01' || tpl === 'T02' || tpl === 'T03' || tpl === 'T04' || !!currentTemplate?.backgroundImage;
+
+    const getBackgroundImage = () => {
+        if (tpl === 'T01') return getT01BackgroundImage(params.tone || 'clear', params.style || 'modern');
+        if (tpl === 'T02') return getT02BackgroundImage(params.tone || 'warm', params.style || 'minimal');
+        if (tpl === 'T03') return getT03BackgroundImage(params.tone || 'warm', params.style || 'minimal');
+        if (tpl === 'T04') return getT04BackgroundImage(params.landmark_id || 'wenzhou');
+        return currentTemplate?.backgroundImage;
+    };
+
+    const backgroundImageUrl = getBackgroundImage();
 
     const renderDecoration = (d: string, i: number) => {
         switch (d) {
@@ -54,15 +73,10 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
         }
     };
 
-
     const renderContent = () => {
-        const primaryColor = getPrimaryColor();
-        const secondaryColor = getSecondaryColor();
-
         switch (tpl) {
             case 'T01': {
                 const topic = params._aiVariant || topics.find(t => t.id === params.topic_id)?.text || "保持热爱";
-
                 return (
                     <div className="flex flex-col h-full justify-between relative z-10" style={{ padding }}>
                         <div className="space-y-4">
@@ -70,9 +84,9 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                                 <div className="font-black tracking-tighter leading-none select-none"
                                     style={{
                                         fontSize: 130 * scale,
-                                        color: hasBackgroundImage ? 'rgba(255, 255, 255, 0.08)' : 'inherit',
-                                        mixBlendMode: hasBackgroundImage ? 'soft-light' : 'overlay',
-                                        opacity: hasBackgroundImage ? 1 : 0.05
+                                        color: 'rgba(255, 255, 255, 0.08)',
+                                        mixBlendMode: 'soft-light',
+                                        opacity: 1
                                     }}>
                                     2026
                                 </div>
@@ -87,9 +101,9 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                                     return 24 * scale;
                                 })(topic.length),
                                 marginTop: isThumbnail ? undefined : -20 * scale,
-                                color: hasBackgroundImage ? '#FFFFFF' : primaryColor,
+                                color: '#FFFFFF',
                                 lineHeight: 1.15,
-                                textShadow: hasBackgroundImage ? '0 2px 12px rgba(0,0,0,0.4)' : 'none'
+                                textShadow: '0 2px 12px rgba(0,0,0,0.4)'
                             }}>
                                 {truncateText(topic, isThumbnail ? 12 : 40)}
                             </div>
@@ -100,64 +114,41 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                                 <div className="text-right font-serif italic opacity-90"
                                     style={{
                                         fontSize: 18 * scale,
-                                        color: hasBackgroundImage ? '#FFFFFF' : secondaryColor,
-                                        textShadow: hasBackgroundImage ? '0 1px 8px rgba(0,0,0,0.3)' : 'none'
+                                        color: '#FFFFFF',
+                                        textShadow: '0 1px 8px rgba(0,0,0,0.3)'
                                     }}>
                                     —— {params.signature}
                                 </div>
                             )}
                             {!isThumbnail && (
                                 <div className="flex items-end justify-between pt-6">
-                                    {/* 左侧品牌区域 - 大师级设计 */}
                                     <div className="space-y-3">
-                                        {/* 装饰性分隔线 */}
-                                        <div
-                                            className="h-px bg-gradient-to-r from-white/40 via-white/20 to-transparent rounded-full"
-                                            style={{
-                                                width: 80 * scale,
-                                                boxShadow: '0 1px 2px rgba(255,255,255,0.1)'
-                                            }}
-                                        />
-
-                                        {/* 主品牌名称 */}
+                                        <div className="h-px bg-gradient-to-r from-white/40 via-white/20 to-transparent rounded-full"
+                                            style={{ width: 80 * scale, boxShadow: '0 1px 2px rgba(255,255,255,0.1)' }} />
                                         <div className="space-y-1">
-                                            <p className="font-bold tracking-wide"
+                                            <p className="font-bold tracking-wide text-white"
                                                 style={{
                                                     fontSize: 11 * scale,
-                                                    color: hasBackgroundImage ? '#FFFFFF' : primaryColor,
                                                     letterSpacing: '0.12em',
-                                                    textShadow: hasBackgroundImage ? '0 2px 8px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)' : 'none',
+                                                    textShadow: '0 2px 8px rgba(0,0,0,0.3)',
                                                     fontWeight: 600
                                                 }}>
                                                 温州市新闻传媒中心
                                             </p>
-                                            <p className="uppercase tracking-[0.25em] opacity-50 font-medium"
+                                            <p className="uppercase tracking-[0.25em] text-white/50 font-medium"
                                                 style={{
                                                     fontSize: 7 * scale,
-                                                    color: hasBackgroundImage ? '#FFFFFF' : secondaryColor,
-                                                    letterSpacing: '0.28em',
-                                                    textShadow: hasBackgroundImage ? '0 1px 4px rgba(0,0,0,0.2)' : 'none'
+                                                    letterSpacing: '0.28em'
                                                 }}>
                                                 WENZHOU MEDIA CENTER
                                             </p>
                                         </div>
-
-                                        {/* 副标题 */}
-                                        <p className="opacity-40 font-medium tracking-wide"
-                                            style={{
-                                                fontSize: 8 * scale,
-                                                color: hasBackgroundImage ? '#FFFFFF' : secondaryColor,
-                                                letterSpacing: '0.08em',
-                                                textShadow: hasBackgroundImage ? '0 1px 4px rgba(0,0,0,0.15)' : 'none'
-                                            }}>
+                                        <p className="text-white/40 font-medium tracking-wide"
+                                            style={{ fontSize: 8 * scale, letterSpacing: '0.08em' }}>
                                             扫码开启我的新年
                                         </p>
                                     </div>
-
-                                    {/* 右侧二维码 */}
-                                    <div className="p-1 bg-white rounded-lg shadow-lg" style={{
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1)'
-                                    }}>
+                                    <div className="p-1 bg-white rounded-lg shadow-lg">
                                         <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={46 * scale} />
                                     </div>
                                 </div>
@@ -173,29 +164,63 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                 const action = parts[1]?.trim();
 
                 return (
-                    <div className="flex flex-col h-full relative z-10" style={{ padding, color: primaryColor }}>
-                        {!isThumbnail && (
-                            <div className="opacity-[0.03] font-black uppercase leading-none mb-8 select-none"
-                                style={{ fontSize: 64 * scale, mixBlendMode: 'overlay' }}>
-                                RECAP / VISION
-                            </div>
-                        )}
-                        <div className="flex-1 flex flex-col justify-center space-y-12" style={{ gap: 32 * scale }}>
-                            <div className="space-y-3">
-                                <p className="uppercase tracking-[0.3em] opacity-40 font-bold" style={{ fontSize: 10 * scale, color: secondaryColor }}>2025 Learned</p>
-                                <p className="font-bold leading-snug tracking-tight text-balance" style={{ fontSize: (isThumbnail ? 15 : 32) * scale, color: 'inherit' }}>{learned}</p>
-                            </div>
-                            <div className="w-16 h-[2px] bg-current opacity-20 rounded-full" style={{ width: 60 * scale }} />
-                            <div className="space-y-3">
-                                <p className="uppercase tracking-[0.3em] opacity-40 font-bold" style={{ fontSize: 10 * scale, color: secondaryColor }}>2026 Action</p>
-                                <p className="font-bold leading-snug tracking-tight text-balance" style={{ fontSize: (isThumbnail ? 15 : 32) * scale, color: 'inherit' }}>{action}</p>
+                    <div className="flex flex-col h-full justify-between relative z-10" style={{ padding }}>
+                        <div className="space-y-4">
+                            {!isThumbnail && (
+                                <div className="font-black tracking-tighter leading-none select-none"
+                                    style={{
+                                        fontSize: 100 * scale,
+                                        color: 'rgba(255, 255, 255, 0.08)',
+                                        mixBlendMode: 'soft-light',
+                                        opacity: 1
+                                    }}>
+                                    RECAP
+                                </div>
+                            )}
+                            <div className="space-y-12" style={{ marginTop: isThumbnail ? 0 : -20 * scale }}>
+                                <div className="space-y-3">
+                                    <p className="uppercase tracking-[0.3em] font-bold text-white/60" style={{ fontSize: 10 * scale }}>2025 Learned</p>
+                                    <p className="font-bold leading-snug tracking-tight text-balance text-white"
+                                        style={{
+                                            fontSize: (isThumbnail ? 15 : 32) * scale,
+                                            textShadow: '0 2px 10px rgba(0,0,0,0.3)'
+                                        }}>
+                                        {learned}
+                                    </p>
+                                </div>
+                                <div className="w-12 h-px rounded-full bg-white/20" />
+                                <div className="space-y-3">
+                                    <p className="uppercase tracking-[0.3em] font-bold text-white/60" style={{ fontSize: 10 * scale }}>2026 Action</p>
+                                    <p className="font-bold leading-snug tracking-tight text-balance text-white"
+                                        style={{
+                                            fontSize: (isThumbnail ? 15 : 32) * scale,
+                                            textShadow: '0 2px 10px rgba(0,0,0,0.3)'
+                                        }}>
+                                        {action}
+                                    </p>
+                                </div>
                             </div>
                         </div>
+
                         {!isThumbnail && (
-                            <div className="flex items-end justify-between mt-auto pt-8 border-t border-current/10">
-                                <div className="font-black italic tracking-tighter" style={{ fontSize: 36 * scale }}>2026.</div>
-                                <div className="p-1 bg-white rounded-lg shadow-sm">
-                                    <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={40 * scale} />
+                            <div className="flex items-end justify-between pt-6 border-t border-white/10">
+                                <div className="space-y-3">
+                                    <div className="h-px bg-gradient-to-r from-white/40 via-white/20 to-transparent rounded-full"
+                                        style={{ width: 80 * scale }} />
+                                    <div className="space-y-1">
+                                        <p className="font-bold tracking-wide text-white" style={{ fontSize: 11 * scale, letterSpacing: '0.12em' }}>
+                                            温州市新闻传媒中心
+                                        </p>
+                                        <p className="uppercase tracking-[0.25em] text-white/50 font-medium" style={{ fontSize: 7 * scale }}>
+                                            WENZHOU MEDIA CENTER
+                                        </p>
+                                    </div>
+                                    <p className="text-white/40 font-medium tracking-wide" style={{ fontSize: 8 * scale }}>
+                                        扫码开启我的新年
+                                    </p>
+                                </div>
+                                <div className="p-1 bg-white rounded-lg shadow-lg">
+                                    <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={46 * scale} />
                                 </div>
                             </div>
                         )}
@@ -207,69 +232,128 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                 const role = roles.find(r => r.id === params.role_id) || roles[0];
                 const roleName = params._aiVariant || role.name;
                 return (
-                    <div className="flex flex-col h-full items-center justify-center text-center relative z-10" style={{ padding, color: primaryColor }}>
-                        <div className="w-full border-[6px] border-current p-10 flex flex-col items-center relative overflow-hidden"
-                            style={{ borderWidth: 5 * scale, padding: 40 * scale }}>
-                            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-current" style={{ width: 12 * scale, height: 12 * scale }} />
-                            <span className="uppercase tracking-[0.5em] opacity-40 font-bold" style={{ fontSize: 12 * scale, marginBottom: 16 * scale }}>2026 属于</span>
-                            <span className="font-black tracking-widest text-balance" style={{ fontSize: (isThumbnail ? 22 : 48) * scale, margin: (isThumbnail ? 8 : 28) * scale }}>"{roleName}"</span>
-                            <span className="uppercase tracking-[0.5em] opacity-40 font-bold" style={{ fontSize: 12 * scale }}>的人</span>
-                        </div>
-                        {!isThumbnail && (
-                            <>
-                                <p className="opacity-60 italic mt-10 max-w-[85%] leading-relaxed font-serif" style={{ fontSize: 16 * scale, marginTop: 40 * scale }}>{role.desc}</p>
-                                <div className="mt-auto flex flex-col items-center gap-4">
-                                    <div className="p-1 bg-white rounded-lg shadow-sm">
-                                        <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={44 * scale} />
-                                    </div>
-                                    <span className="uppercase text-[9px] tracking-[0.25em] opacity-40 font-bold" style={{ fontSize: 9 * scale }}>Scan to discover your role</span>
+                    <div className="flex flex-col h-full justify-between relative z-10" style={{ padding }}>
+                        <div className="space-y-4">
+                            {!isThumbnail && (
+                                <div className="font-black tracking-tighter leading-none select-none"
+                                    style={{
+                                        fontSize: 110 * scale,
+                                        color: 'rgba(255, 255, 255, 0.08)',
+                                        mixBlendMode: 'soft-light'
+                                    }}>
+                                    ROLE
                                 </div>
-                            </>
+                            )}
+                            <div className="flex flex-col items-center text-center space-y-8" style={{ marginTop: isThumbnail ? 0 : -10 * scale }}>
+                                <div className="space-y-2">
+                                    <span className="uppercase tracking-[0.4em] font-bold text-white/60" style={{ fontSize: 10 * scale }}>2026 Identity</span>
+                                    <div className="w-8 h-px bg-white/20 mx-auto" />
+                                </div>
+                                <h2 className="font-black tracking-widest leading-tight text-white"
+                                    style={{
+                                        fontSize: (isThumbnail ? 22 : 52) * scale,
+                                        textShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                                    }}>
+                                    {roleName}
+                                </h2>
+                                {!isThumbnail && (
+                                    <p className="text-white/70 italic max-w-[85%] leading-relaxed font-serif" style={{ fontSize: 15 * scale }}>
+                                        {role.desc}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {!isThumbnail && (
+                            <div className="flex items-end justify-between pt-6 border-t border-white/10">
+                                <div className="space-y-3">
+                                    <div className="h-px bg-gradient-to-r from-white/40 via-white/20 to-transparent rounded-full"
+                                        style={{ width: 80 * scale }} />
+                                    <div className="space-y-1">
+                                        <p className="font-bold tracking-wide text-white" style={{ fontSize: 11 * scale }}>温州市新闻传媒中心</p>
+                                        <p className="uppercase tracking-[0.25em] text-white/50 font-medium" style={{ fontSize: 7 * scale }}>WENZHOU MEDIA CENTER</p>
+                                    </div>
+                                    <p className="text-white/40 font-medium tracking-wide" style={{ fontSize: 8 * scale }}>扫码开启我的新年</p>
+                                </div>
+                                <div className="p-1 bg-white rounded-lg shadow-lg">
+                                    <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={46 * scale} />
+                                </div>
+                            </div>
                         )}
                     </div>
                 );
             }
 
             case 'T04': {
-                const title = params.title || '2026 新年快乐';
-                const subtitle = params.subtitle || '';
-                const textPosition = params.textPosition || 'center';
-
-                const getPositionStyles = () => {
-                    switch (textPosition) {
-                        case 'top':
-                            return 'justify-start pt-20';
-                        case 'bottom':
-                            return 'justify-end pb-20';
-                        default:
-                            return 'justify-center';
-                    }
+                const DEFAULT_QUOTES: Record<string, string> = {
+                    '平安': '平安喜乐，万事胜意，岁岁常欢愉。',
+                    '奋斗': '追风赶月莫停留，平芜尽处是春山。',
+                    '重逢': '山水万程，皆是好运，久别终重逢。',
+                    '热爱': '心有山海，静而无边，所求皆如愿。',
+                    '自由': '心无挂碍，随风而行，自在如少年。',
+                    '健康': '身心康泰，福寿绵长，无病亦无忧。',
+                    '圆满': '月圆人圆，事事圆满，好景常相伴。',
+                    '顺遂': '万事顺遂，岁岁平安，所行皆坦途。'
                 };
+                const quote = params._aiVariant || DEFAULT_QUOTES[params.theme] || '万事顺遂，岁岁平安';
+                const recipient = params.recipient || '致自己';
+                const signature = params.signature || '署名';
+                const landmarkObj = TEMPLATES.find(t => t.id === 'T04')?.fields
+                    .find(f => f.key === 'landmark_id')?.options
+                    ?.find(o => o.value === params.landmark_id);
+                const landmark = landmarkObj?.label || '温州';
 
                 return (
-                    <div className={cn("flex flex-col h-full items-center relative z-10", getPositionStyles())} style={{ padding }}>
-                        <div className="text-center space-y-6" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
-                            <h1 className="font-black tracking-tight text-balance leading-tight"
-                                style={{
-                                    fontSize: (isThumbnail ? 24 : 56) * scale,
-                                    color: '#FFFFFF'
-                                }}>
-                                {truncateText(title, isThumbnail ? 10 : 20)}
-                            </h1>
-                            {subtitle && !isThumbnail && (
-                                <p className="font-medium tracking-wide opacity-90"
+                    <div className="flex flex-col h-full relative z-10" style={{ padding }}>
+                        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+                        <div className="pt-12 text-center relative">
+                            <span className="inline-block px-4 py-1 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm text-white font-medium tracking-widest"
+                                style={{ fontSize: 13 * scale }}>
+                                致：{recipient}
+                            </span>
+                        </div>
+
+                        <div className="flex-1 flex flex-col justify-center items-center relative" style={{ paddingLeft: isThumbnail ? 4 : 32, paddingRight: isThumbnail ? 4 : 32 }}>
+                            <div className="w-full text-center relative">
+                                <span className="absolute -top-4 left-0 text-white/20 font-serif leading-none select-none" style={{ fontSize: (isThumbnail ? 40 : 80) * scale }}>“</span>
+                                <h2 className="font-bold leading-relaxed tracking-[0.1em] text-white text-balance relative z-10 italic"
                                     style={{
-                                        fontSize: 20 * scale,
-                                        color: '#FFFFFF'
+                                        fontSize: (isThumbnail ? 16 : 38) * scale,
+                                        textShadow: '0 2px 12px rgba(0,0,0,0.8)',
+                                        fontFamily: 'serif',
+                                        padding: isThumbnail ? '0 12px' : '0 24px'
                                     }}>
-                                    {truncateText(subtitle, 30)}
-                                </p>
-                            )}
+                                    {quote}
+                                </h2>
+                                <span className="absolute -bottom-8 right-0 text-white/20 font-serif leading-none select-none" style={{ fontSize: (isThumbnail ? 40 : 80) * scale }}>”</span>
+                            </div>
+                        </div>
+
+                        <div className="pb-8 space-y-4 text-right pr-6 relative">
+                            <div className="space-y-1">
+                                <p className="text-white/60 font-medium tracking-widest uppercase" style={{ fontSize: 9 * scale }}>SIGNATURE</p>
+                                <p className="text-white font-bold tracking-widest" style={{ fontSize: 18 * scale }}>— {signature}</p>
+                            </div>
+                            <div className="inline-flex items-center gap-3 px-3 py-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-white/40 shadow-sm" />
+                                <span className="text-white/80 font-medium tracking-[0.2em]" style={{ fontSize: 10 * scale }}>{landmark}</span>
+                            </div>
                         </div>
 
                         {!isThumbnail && (
-                            <div className="absolute bottom-8 right-8 p-2 bg-white rounded-xl shadow-lg">
-                                <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={80 * scale} />
+                            <div className="mt-auto flex items-end justify-between pt-6 border-t border-white/10 relative z-20">
+                                <div className="space-y-3">
+                                    <div className="h-px bg-gradient-to-r from-white/40 via-white/20 to-transparent rounded-full"
+                                        style={{ width: 80 * scale }} />
+                                    <div className="space-y-1">
+                                        <p className="font-bold tracking-wide text-white" style={{ fontSize: 11 * scale }}>温州市新闻传媒中心</p>
+                                        <p className="uppercase tracking-[0.25em] text-white/50 font-medium" style={{ fontSize: 7 * scale }}>WENZHOU MEDIA CENTER</p>
+                                    </div>
+                                    <p className="text-white/40 font-medium tracking-wide" style={{ fontSize: 8 * scale }}>扫码开启我的新年</p>
+                                </div>
+                                <div className="p-1 bg-white rounded-lg shadow-xl">
+                                    <QRCodeBlock url={params._shareUrl || 'https://2026-card.example.com'} size={46 * scale} />
+                                </div>
                             </div>
                         )}
                     </div>
@@ -277,23 +361,13 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
             }
 
             default:
-                return null;
+                return (
+                    <div className="flex items-center justify-center h-full text-white/40 font-medium" style={{ padding }}>
+                        未选择模板
+                    </div>
+                );
         }
     };
-
-    // 获取当前模板配置
-    const currentTemplate = TEMPLATES.find(t => t.id === tpl);
-
-    // T01 使用动态背景,其他模板使用静态配置
-    const getBackgroundImage = () => {
-        if (tpl === 'T01') {
-            return getT01BackgroundImage(params.tone || 'clear', params.style || 'modern');
-        }
-        return currentTemplate?.backgroundImage;
-    };
-
-    const hasBackgroundImage = tpl === 'T01' || currentTemplate?.backgroundImage;
-    const backgroundImageUrl = getBackgroundImage();
 
     return (
         <div
@@ -310,20 +384,19 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                 width: isExporting ? 1080 : undefined,
                 height: isExporting ? 1920 : undefined,
                 borderRadius: isExporting ? 0 : undefined,
-                color: primaryColor // 核心强制注入
+                color: primaryColor
             }}
         >
             {/* 背景图片层 */}
-            {hasBackgroundImage && (
+            {hasBackgroundImage && backgroundImageUrl && (
                 <>
                     <div
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                         style={{
-                            backgroundImage: `url("${encodeURI(backgroundImageUrl || '')}")`,
+                            backgroundImage: `url("${encodeURI(backgroundImageUrl)}")`,
                             filter: 'brightness(0.92)'
                         }}
                     />
-                    {/* 渐变遮罩层 - 增强文字可读性 */}
                     <div
                         className="absolute inset-0 pointer-events-none"
                         style={{
@@ -333,10 +406,8 @@ const CardRenderer: React.FC<CardRendererProps> = ({ tpl, params, styleOverride,
                 </>
             )}
 
-            {!hasBackgroundImage && style.noise && <div className="absolute inset-0 opacity-[0.03] pointer-events-none contrast-150 brightness-100 mix-blend-overlay" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />}
+            {!hasBackgroundImage && style.noise && <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />}
             {!hasBackgroundImage && style.overlay && <div className={cn("absolute inset-0 pointer-events-none", style.overlay)} />}
-
-            {/* 装饰元素 */}
             {!hasBackgroundImage && style.decorations?.map((d, i) => renderDecoration(d, i))}
 
             {renderContent()}

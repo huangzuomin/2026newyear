@@ -62,49 +62,102 @@ export const TEMPLATES: TemplateConfig[] = [
             { key: 'learned', label: '2025 学会了', type: 'input', maxLength: 6, required: true, placeholder: '一个关键词' },
             { key: 'try', label: '2026 去尝试', type: 'input', maxLength: 6, required: true, placeholder: '一个关键词' },
             {
-                key: 'tone', label: '色调', type: 'select', required: false,
+                key: 'tone', label: '视觉色调', type: 'select', required: true,
                 options: [
                     { label: '温润 Warm', value: 'warm' },
-                    { label: '冷静 Calm', value: 'calm' }
+                    { label: '冷静 Calm', value: 'calm' },
+                    { label: '明亮 Clear', value: 'clear' },
+                    { label: '坚定 Firm', value: 'firm' }
+                ]
+            },
+            {
+                key: 'style', label: '视觉风格', type: 'select', required: false,
+                options: [
+                    { label: '极简 Minimal', value: 'minimal' },
+                    { label: '现代 Modern', value: 'modern' },
+                    { label: '国风 Guofeng', value: 'guofeng' }
                 ]
             }
         ],
         defaultParams: {
             learned: '',
             try: '',
-            tone: 'warm'
+            tone: 'warm',
+            style: 'minimal'
         }
     },
     {
         id: 'T03',
         name: '新年角色卡',
         fields: [
-            { key: 'role_id', label: '我的角色', type: 'select', required: true }
-        ],
-        defaultParams: {
-            role_id: 'r1'
-        }
-    },
-    {
-        id: 'T04',
-        name: '山水意境卡',
-        backgroundImage: '/templates/my-design.png',
-        fields: [
-            { key: 'title', label: '主标题', type: 'input', maxLength: 20, required: true, placeholder: '新年寄语' },
-            { key: 'subtitle', label: '副标题', type: 'input', maxLength: 30, required: false, placeholder: '一句话描述' },
+            { key: 'role_id', label: '我的角色', type: 'select', required: true },
             {
-                key: 'textPosition', label: '文字位置', type: 'select', required: false,
+                key: 'tone', label: '视觉色调', type: 'select', required: true,
                 options: [
-                    { label: '居中', value: 'center' },
-                    { label: '上方', value: 'top' },
-                    { label: '下方', value: 'bottom' }
+                    { label: '温润 Warm', value: 'warm' },
+                    { label: '冷静 Calm', value: 'calm' },
+                    { label: '明亮 Clear', value: 'clear' },
+                    { label: '坚定 Firm', value: 'firm' }
+                ]
+            },
+            {
+                key: 'style', label: '视觉风格', type: 'select', required: false,
+                options: [
+                    { label: '极简 Minimal', value: 'minimal' },
+                    { label: '现代 Modern', value: 'modern' },
+                    { label: '国风 Guofeng', value: 'guofeng' }
                 ]
             }
         ],
         defaultParams: {
-            title: '2026 新年快乐',
-            subtitle: '山高水长，未来可期',
-            textPosition: 'center'
+            role_id: 'r1',
+            tone: 'warm',
+            style: 'minimal'
+        }
+    },
+    {
+        id: 'T04',
+        name: '温州地标寄语卡',
+        fields: [
+            { key: 'recipient', label: '祝福对象', type: 'input', maxLength: 12, required: true, placeholder: '致：亲爱的自己' },
+            {
+                key: 'theme', label: '新年愿望', type: 'select', required: true,
+                options: [
+                    { label: '平安', value: '平安' },
+                    { label: '奋斗', value: '奋斗' },
+                    { label: '重逢', value: '重逢' },
+                    { label: '热爱', value: '热爱' },
+                    { label: '自由', value: '自由' },
+                    { label: '健康', value: '健康' },
+                    { label: '圆满', value: '圆满' },
+                    { label: '顺遂', value: '顺遂' }
+                ]
+            },
+            { key: 'signature', label: '署名', type: 'input', maxLength: 8, required: true, placeholder: '你的名字' },
+            {
+                key: 'landmark_id', label: '选择地区', type: 'select', required: true,
+                options: [
+                    { label: '温州市全域', value: 'wenzhou' },
+                    { label: '鹿城区', value: 'lucheng' },
+                    { label: '龙湾区', value: 'longwan' },
+                    { label: '瓯海区', value: 'ouhai' },
+                    { label: '洞头区', value: 'dongtou' },
+                    { label: '瑞安市', value: 'ruian' },
+                    { label: '乐清市', value: 'yueqing' },
+                    { label: '龙港市', value: 'longgang' },
+                    { label: '永嘉县', value: 'yongjia' },
+                    { label: '平阳县', value: 'pingyang' },
+                    { label: '苍南县', value: 'cangnan' },
+                    { label: '文成县', value: 'wencheng' },
+                    { label: '泰顺县', value: 'taishun' }
+                ]
+            }
+        ],
+        defaultParams: {
+            recipient: '致自己',
+            theme: '平安',
+            signature: '署名',
+            landmark_id: 'wenzhou'
         },
         layout: {
             qrPosition: 'bottom-right',
@@ -137,4 +190,32 @@ export function getT01BackgroundImage(tone: string, style: string): string {
     const mappedStyle = styleMap[style?.toLowerCase()] || 'Modern';
 
     return `/templates/T01/${mappedStyle}_${mappedTone}.png`;
+}
+export function getT02BackgroundImage(tone: string, style: string): string {
+    const toneMap: Record<string, string> = {
+        warm: 'Warm', calm: 'Calm', clear: 'Clear', firm: 'Firm'
+    };
+    const styleMap: Record<string, string> = {
+        minimal: 'Minimal', modern: 'Modern', guofeng: 'Guofeng'
+    };
+    const mappedTone = toneMap[tone?.toLowerCase()] || 'Warm';
+    const mappedStyle = styleMap[style?.toLowerCase()] || 'Minimal';
+
+    return `/templates/T02/${mappedStyle}_${mappedTone}.png`;
+}
+export function getT03BackgroundImage(tone: string, style: string): string {
+    const toneMap: Record<string, string> = {
+        warm: 'Warm', calm: 'Calm', clear: 'Clear', firm: 'Firm'
+    };
+    const styleMap: Record<string, string> = {
+        minimal: 'Minimal', modern: 'Modern', guofeng: 'Guofeng'
+    };
+    const mappedTone = toneMap[tone?.toLowerCase()] || 'Warm';
+    const mappedStyle = styleMap[style?.toLowerCase()] || 'Minimal';
+
+    return `/templates/T03/${mappedStyle}_${mappedTone}.png`;
+}
+export function getT04BackgroundImage(landmarkId: string): string {
+    // 13 个行政区对应的实景图路径 (默认为 jpg，适配写实风格)
+    return `/templates/T04/${landmarkId || 'wenzhou'}.png`;
 }

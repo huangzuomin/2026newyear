@@ -76,7 +76,9 @@ export default function CreateCardClient() {
                 ? (topics.find(t => t.id === params.topic_id)?.text || "")
                 : tplId === 'T02'
                     ? `${params.learned} / ${params.try}`
-                    : (roles.find(r => r.id === params.role_id)?.name || "");
+                    : tplId === 'T03'
+                        ? (roles.find(r => r.id === params.role_id)?.name || "")
+                        : (params.theme || "");
 
             if (!baseText || baseText.length < 2) return;
 
@@ -88,7 +90,8 @@ export default function CreateCardClient() {
                     body: JSON.stringify({
                         text: baseText,
                         tone: params.tone || 'clear',
-                        tpl: tplId
+                        tpl: tplId,
+                        landmark_id: params.landmark_id // 为 T4 传递地标
                     })
                 });
                 const data = await res.json();
@@ -105,7 +108,7 @@ export default function CreateCardClient() {
 
         const timer = setTimeout(fetchVariants, 1000);
         return () => clearTimeout(timer);
-    }, [params.topic_id, params.role_id, params.learned, params.try, tplId]);
+    }, [params.topic_id, params.role_id, params.learned, params.try, params.theme, params.landmark_id, params.recipient, params.signature, tplId]);
 
     const handleParamChange = (key: string, value: string) => {
         const validation = validateInput(value);
@@ -128,6 +131,13 @@ export default function CreateCardClient() {
             newParams.tone = Math.random() > 0.5 ? 'warm' : 'calm';
         } else if (tplId === 'T03') {
             newParams.role_id = roles[Math.floor(Math.random() * roles.length)].id;
+        } else if (tplId === 'T04') {
+            const landmarkOptions = config.fields.find(f => f.key === 'landmark_id')?.options || [];
+            const themeOptions = config.fields.find(f => f.key === 'theme')?.options || [];
+            newParams.landmark_id = landmarkOptions[Math.floor(Math.random() * landmarkOptions.length)].value;
+            newParams.theme = themeOptions[Math.floor(Math.random() * themeOptions.length)].value;
+            newParams.recipient = '致未来的自己';
+            newParams.signature = '李华'; // 示例名字
         }
         setParams(newParams);
         setSelectedIndex(Math.floor(Math.random() * 3));
