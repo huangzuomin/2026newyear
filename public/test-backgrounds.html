@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>背景图片测试</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            width: 360px;
+            height: 640px;
+            margin: 20px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .bg-test {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .info {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .test-item h3 {
+            margin-top: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .mini-card {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>🎨 T01 背景图片加载测试</h1>
+        <p>此页面用于测试 12 张背景图片是否能够正常加载</p>
+        <p><strong>图片路径格式：</strong> <code>/templates/T01/{Style} + {Tone}.png</code></p>
+    </div>
+
+    <div class="test-grid">
+        <div class="test-item">
+            <h3>Modern + Clear (默认)</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Modern + Clear.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Modern + Calm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Modern + Calm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Modern + Warm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Modern + Warm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Modern + Firm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Modern + Firm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Minimal + Clear</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Minimal + Clear.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Minimal + Calm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Minimal + Calm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Minimal + Warm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Minimal + Warm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Minimal + Firm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Minimal + Firm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Guofeng + Clear</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Guofeng + Clear.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Guofeng + Calm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Guofeng + Calm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Guofeng + Warm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Guofeng + Warm.png')"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>Guofeng + Firm</h3>
+            <div class="mini-card" style="background-image: url('/templates/T01/Guofeng + Firm.png')"></div>
+        </div>
+    </div>
+
+    <script>
+        // 检查图片加载状态
+        const images = [
+            'Modern + Clear', 'Modern + Calm', 'Modern + Warm', 'Modern + Firm',
+            'Minimal + Clear', 'Minimal + Calm', 'Minimal + Warm', 'Minimal + Firm',
+            'Guofeng + Clear', 'Guofeng + Calm', 'Guofeng + Warm', 'Guofeng + Firm'
+        ];
+
+        images.forEach(name => {
+            const img = new Image();
+            img.onload = () => console.log('✅ 加载成功:', name);
+            img.onerror = () => console.error('❌ 加载失败:', name);
+            img.src = `/templates/T01/${name}.png`;
+        });
+    </script>
+</body>
+</html>
